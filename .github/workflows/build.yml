@@ -5,7 +5,6 @@ on: [push, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
-
     container:
       image: ghcr.io/suresh-kumara-gist/flutter-agentic-ai:latest
 
@@ -21,12 +20,13 @@ jobs:
             --name file_manager \
             --prompt "Android file manager with search, grid/list view, and dark mode"
 
-      # Debug step: List files to confirm APK is built
-      - name: List files for debugging
+      # Debug: Check if APK file exists
+      - name: Check if APK exists
         run: ls -la ./file_manager/build/app/outputs/flutter-apk/
 
+      # Use actions/upload-artifact@v2 as a test
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v2
         with:
           name: file_manager.apk
           path: ./file_manager/build/app/outputs/flutter-apk/app-release.apk

@@ -1,0 +1,36 @@
+name: Flutter APK Builder
+on: [push, workflow_dispatch]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/your-repo/flutter-agentic-ai:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Gemini API key
+        run: echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+      - name: Build Flutter APK
+        run: |
+          python agentic_ai.py \
+            --name file_manager \
+            --prompt "Android file manager with search, grid/list view, and dark mode"
+      - name: Upload APK
+        uses: actions/upload-artifact@v3
+        with:
+          name: file_manager.apk
+          path: ./file_manager/build/app/outputs/flutter-apk/app-release.apk
+      - name: Build All Platforms
+        run: |
+          cd file_manager
+          flutter build apk --release
+          flutter build ios --release --no-codesign
+          flutter build windows --release
+          flutter build macos --release
+
+      # - name: Deploy to Play Store
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_KEY }}
+      #     packageName: com.example.file_manager
+      #     releaseFile: ./file_manager/build/app/outputs/bundle/release/app-release.aab
+      #     track: ${{ secrets.TRACK }}
